@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Order;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -10,6 +11,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class OrderExport implements FromCollection, WithHeadings, ShouldAutoSize, WithMapping
 {
+    use Exportable;
     protected $order;
 
     public function __construct(Order $order)
@@ -34,7 +36,10 @@ class OrderExport implements FromCollection, WithHeadings, ShouldAutoSize, WithM
                 'Product Name' => $product->name,
                 'Quantity' => $product->pivot->quantity,
                 'Price' => $product->price,
-                'Amount' => $product->pivot->quantity * $product->price,
+                'Amount' => $product->pivot->amount,
+                'Free' => $product->pivot->free,
+                'Discount' => $product->pivot->discount,
+                'Subtotal' => $product->pivot->subtotal
             ];
         }
 
@@ -42,8 +47,11 @@ class OrderExport implements FromCollection, WithHeadings, ShouldAutoSize, WithM
         $data[] = [
             'Product Name' => '',
             'Quantity' => '',
-            'Price' => 'Total:',
-            'Amount' => $order->net_amount, 
+            'Price' => '',
+            'Amount' => '',
+            'Free' => '',
+            'Discount' => 'Net Amount',
+            'Subtotal' => $order->net_amount, 
         ];
 
         // Empty space
@@ -52,6 +60,9 @@ class OrderExport implements FromCollection, WithHeadings, ShouldAutoSize, WithM
             'Quantity' => '',
             'Price' => '',
             'Amount' => '', 
+            'Free' => '',
+            'Discount' => '',
+            'Subtotal' => ''
         ];
 
         // Order id and name
@@ -60,6 +71,9 @@ class OrderExport implements FromCollection, WithHeadings, ShouldAutoSize, WithM
             'Quantity' => 'Customer Name',
             'Price' => 'Order Date',
             'Amount' => 'Order Time',
+            'Free' => '',
+            'Discount' => '',
+            'Subtotal' => ''
         ];
 
         // Order date and time
@@ -67,7 +81,10 @@ class OrderExport implements FromCollection, WithHeadings, ShouldAutoSize, WithM
             'Product Name' => $order->id,
             'Quantity' => $order->customer->name,
             'Price' => $order->order_date,
-            'Amount' => $order->order_time, 
+            'Amount' => $order->order_time,
+            'Free' => '',
+            'Discount' => '',
+            'Subtotal' => '' 
         ];
 
 
@@ -81,6 +98,9 @@ class OrderExport implements FromCollection, WithHeadings, ShouldAutoSize, WithM
             'Quantity',
             'Price',
             'Amount',
+            'Free',
+            'Discount',
+            'Subtotal'
         ];
     }
 }

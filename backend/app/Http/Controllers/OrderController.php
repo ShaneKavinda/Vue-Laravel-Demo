@@ -9,7 +9,8 @@ use App\Exports\OrderExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
-use LynX39\LaraPdfMerger\Facades\PdfMerger;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+//use LynX39\LaraPdfMerger\Facades\PdfMerger;
 
 class OrderController extends Controller
 {
@@ -79,13 +80,29 @@ class OrderController extends Controller
         // Endpoint not applicable for API
     }
 
-    public function exportExcel($orderID)
-    {
-        // Endpoint not applicable for API
+    public function exportExcel($orderID){
+        $order = Order::with('products') -> find($orderID);
+        return Excel::download(new OrderExport(($order)), 'invoices.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 
-    public function bulkPDFGeneration(Request $request)
-    {
-        // Endpoint not applicable for API
+    public function bulkPDFGeneration(Request $request) {
+        $orderids = $request->input('ids');
+        $Merger = PDFMerger::init();
+    
+        foreach ($orderids as $orderid) {
+            $order = Order::with('products')->find($orderid);
+            // Directly add the generated PDF content to the merger
+            $Merger->addString(PDF::loadView('orders.pdf', compact('order'))->output(), 'all');
+        }
+    
+        $Merger->merge();
+        // Send the merged PDF as a response
+        return response($Merger->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="bulk_invoices.pdf"',
+        ]);
     }
+    
+    
+    
 }

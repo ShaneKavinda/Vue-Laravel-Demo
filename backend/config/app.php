@@ -163,6 +163,7 @@ return [
         \Barryvdh\DomPDF\ServiceProvider::class,
         \Maatwebsite\Excel\ExcelServiceProvider::class,
         \Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class,
+        LynX39\LaraPdfMerger\PdfMergerServiceProvider::class,
         /*
          * Application Service Providers...
          */
